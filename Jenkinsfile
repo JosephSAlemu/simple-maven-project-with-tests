@@ -1,29 +1,9 @@
-pipeline {
-    agent any
-
-    tools {
-        // Install the Maven version configured as "M3" and add it to the path.
-        maven "M3"
+podTemplate(containers: [containerTemplate(name: 'maven', image: 'maven', command: 'sleep', args: 'infinity')]) {
+  node(POD_LABEL) {
+    checkout scm
+    container('maven') {
+      sh 'mvn -B -ntp -Dmaven.test.failure.ignore verify'
     }
-
-    stages {
-        stage('Build') {
-            steps {
-
-                // Run Maven on a Unix agent.
-                sh "mvn -B -ntp -Dmaven.test.failure.ignore verify"
-
-            }
-
-            post {
-                // If Maven was able to run the tests, even if some of the test
-                // failed, record the test results and archive the jar file.
-                success {
-                    junit '**/target/surefire-reports/TEST-*.xml'
-                    archiveArtifacts 'target/*.jar'
-                }
-            }
-        }
-    }
+    junit '**/target/surefire-reports/TEST-*.xml'
+  }
 }
-
