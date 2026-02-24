@@ -9,6 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                sleep 1000
                 checkout scm
               }
           }
